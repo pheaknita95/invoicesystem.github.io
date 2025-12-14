@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Invoice System - Reaksa Ads Style (Dynamic Rows)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: "Times New Roman", serif;
+      background: #f4f5f7;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #2563eb;
+      color: #2563eb;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+    }
+
+    .btn + .btn {
+      margin-left: 8px;
+    }
+
+    /* INVOICE STYLES */
+    #invoice {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      color: #000;
+    }
+
+    .invoice-header {
+      margin-bottom: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .invoice-logo-top {
+      text-align: center;
+    }
+
+    .invoice-logo {
+      display: inline-block;
+      height: auto;
+    }
+
+    .invoice-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .invoice-title {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .invoice-meta div {
+      margin-bottom: 3px;
+    }
+
+    .invoice-meta span.label {
+      font-weight: bold;
+    }
+
+    .invoice-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    /* Total Pay box – label លើ, ខាងក្រោម $ .... amount */
+    .invoice-total-box {
+      min-width: 230px;
+      background: yellow;
+      padding: 15px 20px;
+      border-radius: 8px;
+      border: 1px solid #000;
+    }
+
+    .invoice-total-box .label {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .invoice-total-box .amount-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .invoice-total-box .amount-label {
+      font-size: 18px;
+    }
+
+    .invoice-total-box .amount-value {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .invoice-body {
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    table th,
+    table td {
+      border: 1px solid #000;
+      padding: 6px 8px;
+    }
+
+    table th {
+      text-align: center;
+      background: #f2f2f2;
+      font-weight: bold;
+    }
+
+    table td.amount,
+    table td.tax,
+    table td.total {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    table td.center {
+      text-align: center;
+    }
+
+    .invoice-footer {
+      margin-top: 20px;
+      text-align: right;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .small-text {
+      font-size: 12px;
+      color: #555;
+    }
+
+    .section-title {
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .divider {
+      margin: 15px 0;
+      border: 0;
+      border-top: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h1>Invoice System (Reaksa Ads Style)</h1>
+
+  <div class="app-container">
+    <!-- LEFT: FORM -->
+    <div class="card">
+      <h2>Invoice Form</h2>
+
+      <div class="form-group">
+        <label>Page Name</label>
+        <input type="text" id="pageName" value="Baby Pink Store" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Invoice No</label>
+          <input type="text" id="invoiceNo" value="INV-003" />
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="invoiceDate" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>From</label>
+          <input type="text" id="fromName" value="Reaksa Ads" />
+        </div>
+        <div class="form-group">
+          <label>To</label>
+          <input type="text" id="toName" value="IM RACHANA" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" id="description" value="Page Management" />
+      </div>
+
+      <hr class="divider" />
+
+      <h3>Line Items</h3>
+      <p class="small-text">
+        បំពេញ Amount Spent និង Tax % ប្រព័ន្ធនឹងគណនា Tax Amount និង Total ស្វ័យប្រវត្តិ។ អ្នកអាចចុច
+        <b>+ Add Row</b> ដើម្បីបន្ថែមជួរដេកថ្មី។
+      </p>
+
+      <div id="itemsContainer"></div>
+
+      <button class="btn btn-outline" type="button" onclick="addItemRow()">
+        + Add Row
+      </button>
+
+      <hr class="divider" />
+
+      <h3>Text Settings (Invoice Preview)</h3>
+      <p class="small-text">
+        អ្នកអាចកែអក្សរទាំងអស់ក្នុង Invoice Preview ដូចជា Title, Label, Table Header និង Footer Text ។
+      </p>
+
+      <!-- Header Texts -->
+      <div class="section-title">Header Texts</div>
+      <div class="form-group">
+        <label>Invoice Title</label>
+        <input type="text" id="txtInvoiceTitle" value="Invoice for Page:" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Label: Invoice/Payment</label>
+          <input type="text" id="txtLblInvoicePayment" value="Invoice/Payment:" />
+        </div>
+        <div class="form-group">
+          <label>Label: Date</label>
+          <input type="text" id="txtLblDate" value="Date:" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Label: From</label>
+          <input type="text" id="txtLblFrom" value="From:" />
+        </div>
+        <div class="form-group">
+          <label>Label: To</label>
+          <input type="text" id="txtLblTo" value="To:" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Label: Description</label>
+        <input type="text" id="txtLblDescription" value="Description:" />
+      </div>
+
+      <div class="form-group">
+        <label>Label: Total Pay Box</label>
+        <input type="text" id="txtLblTotalPay" value="Total Pay:" />
+      </div>
+
+      <!-- Table Headers -->
+      <div class="section-title">Table Headers</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Column 1</label>
+          <input type="text" id="txtTblColNo" value="No" />
+        </div>
+        <div class="form-group">
+          <label>Column 2</label>
+          <input type="text" id="txtTblColDesc" value="3 Post 1Week" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Column 3</label>
+          <input type="text" id="txtTblColAmount" value="Amount Spent" />
+        </div>
+        <div class="form-group">
+          <label>Column 4</label>
+          <input type="text" id="txtTblColTax" value="Tax Amount" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Column 5</label>
+        <input type="text" id="txtTblColTotal" value="Total" />
+      </div>
+
+      <!-- Footer -->
+      <div class="section-title">Footer Texts</div>
+      <div class="form-group">
+        <label>Footer Line 1</label>
+        <input type="text" id="txtFooterLine1" value="Thank you for your Business!" />
+      </div>
+      <div class="form-group">
+        <label>Footer Line 2</label>
+        <input type="text" id="txtFooterLine2" value="Contact: 015 812 050" />
+      </div>
+
+      <!-- Logo settings -->
+      <div class="section-title">Logo Settings</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Logo URL (PNG/JPG)</label>
+          <input type="text" id="logoUrl" placeholder="https://example.com/logo.png" />
+        </div>
+        <div class="form-group" style="max-width: 130px;">
+          <label>Logo Width (px)</label>
+          <input type="number" id="logoWidth" value="120" />
+        </div>
+      </div>
+
+      <div style="margin-top: 15px;">
+        <button class="btn btn-primary" type="button" onclick="updateInvoice()">Update Invoice</button>
+        <button class="btn btn-outline" type="button" onclick="clearForm()">Clear</button>
+      </div>
+
+      <hr class="divider" />
+
+      <div style="margin-top: 5px; display: flex; gap: 8px; flex-wrap: wrap;">
+        <button class="btn btn-primary" type="button" onclick="downloadPDF()">Download PDF</button>
+        <button class="btn btn-outline" type="button" onclick="downloadJPG()">Download JPG</button>
+      </div>
+      <p class="small-text" style="margin-top: 8px;">
+        Note: PDF/JPG នឹងយក Preview ខាងស្តាំ (Invoice) បច្ចុប្បន្ន។ សូមចុច Update មុនចុច Download ប្រសិនបើអ្នកបានកែទិន្នន័យថ្មី។
+      </p>
+    </div>
+
+    <!-- RIGHT: INVOICE PREVIEW -->
+    <div class="card">
+      <h2>Invoice Preview</h2>
+      <div id="invoice">
+        <!-- Filled by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- JS LIBS for PDF & JPG -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    let itemRowId = 0;
+
+    function formatMoney(value) {
+      const num = isNaN(parseFloat(value)) ? 0 : parseFloat(value);
+      return num.toFixed(2);
+    }
+
+    // desc, amount, taxRate (default 6%)
+    function addItemRow(desc = "", amount = "", taxRate = 6) {
+      itemRowId++;
+      const container = document.getElementById("itemsContainer");
+
+      const row = document.createElement("div");
+      row.className = "form-row item-row";
+      row.dataset.rowId = itemRowId;
+
+      row.innerHTML = `
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" class="item-desc" value="${desc.replace(/"/g, "&quot;")}" />
+        </div>
+        <div class="form-group" style="max-width: 140px;">
+          <label>Amount (USD)</label>
+          <input type="number" class="item-amount" step="0.01" value="${amount}" />
+        </div>
+        <div class="form-group" style="max-width: 90px;">
+          <label>Tax %</label>
+          <input type="number" class="item-tax" step="0.1" value="${taxRate}" />
+        </div>
+        <button class="btn btn-danger" type="button" onclick="removeItemRow(this)">🗑</button>
+      `;
+
+      container.appendChild(row);
+
+      // Live update when typing (desc, amount, tax)
+      row.querySelectorAll(".item-desc, .item-amount, .item-tax").forEach((el) => {
+        el.addEventListener("input", updateInvoice);
+      });
+
+      updateInvoice();
+    }
+
+    function removeItemRow(button) {
+      const container = document.getElementById("itemsContainer");
+      const rows = container.querySelectorAll(".item-row");
+      if (rows.length <= 1) {
+        alert("ត្រូវមានយ៉ាងហោចណាស់ 1 ជួរដេក!");
+        return;
+      }
+      const row = button.closest(".item-row");
+      if (row) {
+        row.remove();
+        updateInvoice();
+      }
+    }
+
+    function buildInvoiceHTML() {
+      const pageName = document.getElementById("pageName").value || "";
+      const invoiceNo = document.getElementById("invoiceNo").value || "";
+      const invoiceDate = document.getElementById("invoiceDate").value || "";
+      const fromName = document.getElementById("fromName").value || "";
+      const toName = document.getElementById("toName").value || "";
+      const description = document.getElementById("description").value || "";
+
+      // Text settings
+      const invoiceTitleText = document.getElementById("txtInvoiceTitle").value || "Invoice for Page:";
+      const lblInvoicePayment = document.getElementById("txtLblInvoicePayment").value || "Invoice/Payment:";
+      const lblDate = document.getElementById("txtLblDate").value || "Date:";
+      const lblFrom = document.getElementById("txtLblFrom").value || "From:";
+      const lblTo = document.getElementById("txtLblTo").value || "To:";
+      const lblDescription = document.getElementById("txtLblDescription").value || "Description:";
+      const lblTotalPay = document.getElementById("txtLblTotalPay").value || "Total Pay:";
+
+      const tblColNo = document.getElementById("txtTblColNo").value || "No";
+      const tblColDesc = document.getElementById("txtTblColDesc").value || "Description";
+      const tblColAmount = document.getElementById("txtTblColAmount").value || "Amount Spent";
+      const tblColTax = document.getElementById("txtTblColTax").value || "Tax Amount";
+      const tblColTotal = document.getElementById("txtTblColTotal").value || "Total";
+
+      const footerLine1 = document.getElementById("txtFooterLine1").value || "";
+      const footerLine2 = document.getElementById("txtFooterLine2").value || "";
+
+      // Logo settings
+      const logoUrl = (document.getElementById("logoUrl").value || "").trim();
+      let logoWidth = parseInt(document.getElementById("logoWidth").value, 10);
+      if (isNaN(logoWidth) || logoWidth <= 0) logoWidth = 120;
+
+      const rows = [];
+      const itemRows = document.querySelectorAll(".item-row");
+      let index = 1;
+
+      itemRows.forEach((rowDiv) => {
+        const descEl = rowDiv.querySelector(".item-desc");
+        const amtEl = rowDiv.querySelector(".item-amount");
+        const taxEl = rowDiv.querySelector(".item-tax");
+
+        const desc = descEl ? descEl.value : "";
+        const amount = amtEl ? parseFloat(amtEl.value) || 0 : 0;
+        const taxRate = taxEl ? parseFloat(taxEl.value) || 0 : 0;
+
+        const tax = amount * (taxRate / 100);
+        const total = amount + tax;
+
+        rows.push({ no: index++, desc, amount, taxRate, tax, total });
+      });
+
+      const grandTotal = rows.reduce((sum, r) => sum + r.total, 0);
+
+      let displayDate = "";
+      if (invoiceDate) {
+        const d = new Date(invoiceDate);
+        if (!isNaN(d)) {
+          const dd = String(d.getDate()).padStart(2, "0");
+          const mm = String(d.getMonth() + 1).padStart(2, "0");
+          const yyyy = d.getFullYear();
+          displayDate = dd + "/" + mm + "/" + yyyy;
+        }
+      }
+
+      const logoHTML = logoUrl
+        ? `<div class="invoice-logo-top"><img src="${logoUrl}" alt="Logo" class="invoice-logo" style="width:${logoWidth}px;" /></div>`
+        : "";
+
+      return `
+        <div class="invoice-header">
+          ${logoHTML}
+          <div class="invoice-header-row">
+            <div>
+              <div class="invoice-title">${invoiceTitleText} ${pageName || "________"}</div>
+              <div class="invoice-meta">
+                <div><span class="label">${lblInvoicePayment}</span> ${invoiceNo || "-"}</div>
+                <div><span class="label">${lblDate}</span> ${displayDate || "-"}</div>
+                <div><span class="label">${lblFrom}</span> ${fromName || "-"}</div>
+                <div><span class="label">${lblTo}</span> ${toName || "-"}</div>
+                <div><span class="label">${lblDescription}</span> ${description || "-"}</div>
+              </div>
+            </div>
+            <div class="invoice-right">
+              <div class="invoice-total-box">
+                <div class="label">${lblTotalPay}</div>
+                <div class="amount-row">
+                  <span class="amount-label">$</span>
+                  <span class="amount-value">${formatMoney(grandTotal)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="invoice-body">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 40px;">${tblColNo}</th>
+                <th>${tblColDesc}</th>
+                <th style="width: 120px;">${tblColAmount}</th>
+                <th style="width: 120px;">${tblColTax}</th>
+                <th style="width: 120px;">${tblColTotal}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows
+                .map(
+                  (r) => `
+                <tr>
+                  <td class="center">${r.no}</td>
+                  <td>${r.desc}</td>
+                  <td class="amount">$ ${formatMoney(r.amount)}</td>
+                  <td class="tax">$ ${formatMoney(r.tax)}</td>
+                  <td class="total">$ ${formatMoney(r.total)}</td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+
+          <div class="invoice-footer">
+            <div>${footerLine1}</div>
+            <div>${footerLine2}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateInvoice() {
+      const invoiceEl = document.getElementById("invoice");
+      invoiceEl.innerHTML = buildInvoiceHTML();
+    }
+
+    function clearForm() {
+      document.getElementById("pageName").value = "";
+      document.getElementById("invoiceNo").value = "";
+      document.getElementById("invoiceDate").value = "";
+      document.getElementById("fromName").value = "";
+      document.getElementById("toName").value = "";
+      document.getElementById("description").value = "";
+
+      const container = document.getElementById("itemsContainer");
+      container.innerHTML = "";
+      itemRowId = 0;
+      addItemRow();
+      updateInvoice();
+    }
+
+    async function downloadPDF() {
+      updateInvoice();
+
+      const invoiceElement = document.getElementById("invoice");
+      const { jsPDF } = window.jspdf;
+
+      const canvas = await html2canvas(invoiceElement, {
+        scale: 2,
+        useCORS: true
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "pt", "a4");
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const imgWidth = pageWidth - 60;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      const x = 30;
+      const y = 40;
+
+      pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
+      pdf.save("invoice.pdf");
+    }
+
+    async function downloadJPG() {
+      updateInvoice();
+
+      const invoiceElement = document.getElementById("invoice");
+
+      const canvas = await html2canvas(invoiceElement, {
+        scale: 2,
+        useCORS: true
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const link = document.createElement("a");
+      link.href = imgData;
+      link.download = "invoice.jpg";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    window.addEventListener("load", () => {
+      const today = new Date().toISOString().substring(0, 10);
+      document.getElementById("invoiceDate").value = today;
+
+      // default 3 rows (Tax % = 6)
+      addItemRow("1 Post 15$ Per Day", "105", 6);
+      addItemRow("1 Post 15$ Per Day", "105", 6);
+      addItemRow("2 Post 5$ Per Day", "35", 6);
+
+      // live update for header & text-setting fields
+      document.querySelectorAll(
+        "#pageName,#invoiceNo,#invoiceDate,#fromName,#toName,#description," +
+        "#txtInvoiceTitle,#txtLblInvoicePayment,#txtLblDate,#txtLblFrom,#txtLblTo," +
+        "#txtLblDescription,#txtLblTotalPay,#txtTblColNo,#txtTblColDesc," +
+        "#txtTblColAmount,#txtTblColTax,#txtTblColTotal,#txtFooterLine1,#txtFooterLine2," +
+        "#logoUrl,#logoWidth"
+      ).forEach((el) => {
+        el.addEventListener("input", updateInvoice);
+      });
+
+      updateInvoice();
+    });
+  </script>
+</body>
+</html>
